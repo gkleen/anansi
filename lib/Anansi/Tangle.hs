@@ -93,7 +93,7 @@ tangle writeFile' enableLine doc = mapM_ putFile files where
 		let path = FP.fromText pathT
 		let env = TangleEnv macros (if enableLine
 			then formatPosition doc path
-			else const "\n")
+			else const mempty)
 		(_, bytes) <- RWS.evalRWST (mapM_ putContent content) env state
 		let stripped = ByteString.dropWhile (== '\n') bytes
 		writeFile' path stripped
@@ -116,8 +116,8 @@ formatPosition doc = checkPath where
 	checkPath path = case FP.extension path of
 		Just ext -> case Data.Map.lookup ("anansi.line-pragma-" `Data.Text.append` ext) opts of
 			Just tmpl -> checkPos tmpl
-			Nothing -> const "\n"
-		Nothing -> const "\n"
+			Nothing -> const mempty
+		Nothing -> const mempty
 	
 	checkPos tmpl pos = formatTemplate tmpl (templateParams pos)
 	
